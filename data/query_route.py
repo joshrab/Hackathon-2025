@@ -23,8 +23,12 @@ def get_coordinates(address):
     return (location.latitude, location.longitude) if location else None
 
 # Example addresses in Durham, NC
-address1 = "916 Jones Cir, Durham, NC 27703"
-address2 = "1200 Pate Farm Ln, Durham, NC 27703"
+# address1 = "916 Jones Cir, Durham, NC 27703"
+# address2 = "1200 Pate Farm Ln, Durham, NC 27703"
+address1 = sys.argv[1]
+address2 = sys.argv[2]
+
+print("Query Route Addresses:", address1, address2)
 
 coords1 = get_coordinates(address1)
 coords2 = get_coordinates(address2)
