@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # -------------------------------
 # PARAMETERS & SETTINGS
 # -------------------------------
-GRAPH_FILE = "nc_graph.gpickle"            # Use the precomputed NC graph file
+GRAPH_FILE = "durham_graph.gpickle"            # Use the precomputed NC graph file
 RISK_TOLERANCE = 0.7                       # Adjust risk tolerance at query time (0 = fastest, 1 = safest)
 RISK_WEIGHT_FACTOR = 1000                  # Must be same as used during precomputation
 
@@ -58,19 +58,6 @@ for u, v, k, data in G.edges(keys=True, data=True):
 origin_node = ox.distance.nearest_nodes(G, X=ORIGIN_COORDS[1], Y=ORIGIN_COORDS[0])
 destination_node = ox.distance.nearest_nodes(G, X=DESTINATION_COORDS[1], Y=DESTINATION_COORDS[0])
 
-# -------------------------------
-# (Optional) Visual Debugging: Plot Original vs. Snapped Coordinates
-# -------------------------------
-fig, ax = ox.plot_graph(G, show=False, close=False)
-ax.scatter(ORIGIN_COORDS[1], ORIGIN_COORDS[0], c='red', s=100, label="Original Origin")
-ax.scatter(DESTINATION_COORDS[1], DESTINATION_COORDS[0], c='blue', s=100, label="Original Destination")
-snapped_origin = (G.nodes[origin_node]['y'], G.nodes[origin_node]['x'])
-snapped_destination = (G.nodes[destination_node]['y'], G.nodes[destination_node]['x'])
-ax.scatter(snapped_origin[1], snapped_origin[0], c='green', s=100, label="Snapped Origin")
-ax.scatter(snapped_destination[1], snapped_destination[0], c='purple', s=100, label="Snapped Destination")
-plt.legend()
-plt.title("Visual Debugging: Original vs. Snapped Coordinates")
-plt.show()
 
 # -------------------------------
 # STEP 4: Compute the Safest Route
