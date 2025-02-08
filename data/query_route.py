@@ -2,6 +2,7 @@ import pickle
 import networkx as nx
 import osmnx as ox
 import folium
+import sys
 
 # -------------------------------
 # PARAMETERS & SETTINGS
@@ -12,8 +13,14 @@ RISK_TOLERANCE = 0.7
 RISK_WEIGHT_FACTOR = 1000  # Must be same as used in precomputation
 
 # Define your query origin and destination coordinates (lat, lon)
-ORIGIN_COORDS = (35.957622, -78.850555)        # (lat, lon)
-DESTINATION_COORDS = (35.950523, -78.861716)    # (lat, lon)
+# ORIGIN_COORDS = (35.957622, -78.850555)        # (lat, lon)
+# DESTINATION_COORDS = (35.950523, -78.861716)    # (lat, lon)
+ORIGIN_COORDS = (float(sys.argv[1]), float(sys.argv[2]))  # (lat, lon)
+DESTINATION_COORDS = (float(sys.argv[3]), float(sys.argv[4]))  # (lat, lon)
+
+# Print origin and destination coordinates
+print(f"Origin coordinates: {ORIGIN_COORDS}")
+print(f"Destination coordinates: {DESTINATION_COORDS}")
 
 # -------------------------------
 # STEP 1: Load the Precomputed Graph
