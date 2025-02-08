@@ -2,18 +2,39 @@ import pickle
 import networkx as nx
 import osmnx as ox
 import folium
+from geopy.geocoders import Nominatim
+import matplotlib.pyplot as plt
 
 # -------------------------------
 # PARAMETERS & SETTINGS
 # -------------------------------
-GRAPH_FILE = "durham_graph.gpickle"
-# Adjust risk tolerance at query time (0 = fastest, 1 = safest)
-RISK_TOLERANCE = 0.7
-RISK_WEIGHT_FACTOR = 1000  # Must be same as used in precomputation
+GRAPH_FILE = "nc_graph.gpickle"            # Use the precomputed NC graph file
+RISK_TOLERANCE = 0.7                       # Adjust risk tolerance at query time (0 = fastest, 1 = safest)
+RISK_WEIGHT_FACTOR = 1000                  # Must be same as used during precomputation
 
-# Define your query origin and destination coordinates (lat, lon)
-ORIGIN_COORDS = (35.957622, -78.850555)        # (lat, lon)
-DESTINATION_COORDS = (35.950523, -78.861716)    # (lat, lon)
+def get_coordinates(address):
+    geolocator = Nominatim(user_agent="my_app")
+    location = geolocator.geocode(address)
+    return (location.latitude, location.longitude) if location else None
+
+# Example addresses in Durham, NC
+address1 = "916 Jones Cir, Durham, NC 27703"
+address2 = "1200 Pate Farm Ln, Durham, NC 27703"
+
+coords1 = get_coordinates(address1)
+coords2 = get_coordinates(address2)
+
+print("Address 1 coordinates:", coords1)
+print("Address 2 coordinates:", coords2)
+
+if coords1 is None:
+    raise ValueError(f"Could not geocode address: {address1}")
+if coords2 is None:
+    raise ValueError(f"Could not geocode address: {address2}")
+
+# Define query origin and destination coordinates (lat, lon)
+ORIGIN_COORDS = coords1
+DESTINATION_COORDS = coords2
 
 # -------------------------------
 # STEP 1: Load the Precomputed Graph
@@ -25,7 +46,6 @@ print(f"Loaded graph from {GRAPH_FILE}.")
 # -------------------------------
 # STEP 2: Update Combined Weight (if needed)
 # -------------------------------
-# If you want to allow dynamic risk tolerance, update the combined weight for each edge.
 for u, v, k, data in G.edges(keys=True, data=True):
     distance = data.get("length", 0)
     risk = data.get("risk", 0)
@@ -34,8 +54,23 @@ for u, v, k, data in G.edges(keys=True, data=True):
 # -------------------------------
 # STEP 3: Find Nearest Nodes for Origin and Destination
 # -------------------------------
+# Note: ox.distance.nearest_nodes expects X=longitude, Y=latitude.
 origin_node = ox.distance.nearest_nodes(G, X=ORIGIN_COORDS[1], Y=ORIGIN_COORDS[0])
 destination_node = ox.distance.nearest_nodes(G, X=DESTINATION_COORDS[1], Y=DESTINATION_COORDS[0])
+
+# -------------------------------
+# (Optional) Visual Debugging: Plot Original vs. Snapped Coordinates
+# -------------------------------
+fig, ax = ox.plot_graph(G, show=False, close=False)
+ax.scatter(ORIGIN_COORDS[1], ORIGIN_COORDS[0], c='red', s=100, label="Original Origin")
+ax.scatter(DESTINATION_COORDS[1], DESTINATION_COORDS[0], c='blue', s=100, label="Original Destination")
+snapped_origin = (G.nodes[origin_node]['y'], G.nodes[origin_node]['x'])
+snapped_destination = (G.nodes[destination_node]['y'], G.nodes[destination_node]['x'])
+ax.scatter(snapped_origin[1], snapped_origin[0], c='green', s=100, label="Snapped Origin")
+ax.scatter(snapped_destination[1], snapped_destination[0], c='purple', s=100, label="Snapped Destination")
+plt.legend()
+plt.title("Visual Debugging: Original vs. Snapped Coordinates")
+plt.show()
 
 # -------------------------------
 # STEP 4: Compute the Safest Route
@@ -52,11 +87,9 @@ except nx.NetworkXNoPath:
 route_map = folium.Map(location=ORIGIN_COORDS, zoom_start=14)
 route_coords = [(G.nodes[node]['y'], G.nodes[node]['x']) for node in route]
 folium.PolyLine(route_coords, color="blue", weight=5, opacity=0.7).add_to(route_map)
-# Mark origin and destination
 folium.Marker(location=ORIGIN_COORDS, popup="Origin", icon=folium.Icon(color="green")).add_to(route_map)
 folium.Marker(location=DESTINATION_COORDS, popup="Destination", icon=folium.Icon(color="red")).add_to(route_map)
 
-# Save the map to an HTML file
 map_file = "safe_route_map.html"
 route_map.save(map_file)
 print(f"Route map saved to {map_file}. Open it in your browser to view the route.")
