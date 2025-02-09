@@ -37,6 +37,7 @@ const MapComponent = () => {
 
       <iframe
         src="http://127.0.0.1:5500/data/safe_route_map.html"
+        // src="http://167.172.135.178:5500/data/safe_route_map.html"
         width="100%"
         height="500px"
         title="Map"
