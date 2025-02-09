@@ -8,6 +8,7 @@ const Search = () => {
 
   const handleGenerateMap = async () => {
     try {
+      setIframeSrc("https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif");
       const response = await axios.post("http://127.0.0.1:5000/generate-map", {
         start: start,
         end: end,
@@ -26,28 +27,45 @@ const Search = () => {
   };
 
   return (
-    <div
-      style={{
-        backgroundColor: "lightgreen",
-        padding: "20px",
-        height: "100vh",
-      }}
-    >
-      <h1>Search Page</h1>
-      <input
-        type="text"
-        placeholder="Start"
-        value={start}
-        onChange={(e) => setStart(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Destination"
-        value={end}
-        onChange={(e) => setEnd(e.target.value)}
-      />
-      <button onClick={handleGenerateMap}>Generate Map</button>
-      {iframeSrc && <iframe src={iframeSrc} width="100%" height="600px" />}
+    <div className="bg-green-200 flex flex-col justify-center min-h-screen w-full">
+      <div className="text-center w-full">
+        <h1 className="text-6xl mb-4">SafeRoute</h1>
+        <div className="space-x-2">
+          <input
+            type="text"
+            placeholder="Start"
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+            className="mb-2 p-2 border border-gray-400"
+          />
+          <input
+            type="text"
+            placeholder="Destination"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+            className="mb-2 p-2 border border-gray-400"
+          />
+          <button
+            onClick={handleGenerateMap}
+            className="mb-4 p-2 bg-blue-500 text-white"
+          >
+            Take Me There Safely!
+          </button>
+        </div>
+        {iframeSrc && (
+          <div className="flex justify-center w-full">
+            {iframeSrc.includes("loading-gif.gif") ? (
+              <img src={iframeSrc} className="w-16 h-16" alt="Loading..." />
+            ) : (
+              <iframe
+                src={iframeSrc}
+                className="w-full max-w-3xl"
+                style={{ height: "calc(100vh - 200px)" }}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
